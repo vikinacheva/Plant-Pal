@@ -1,60 +1,118 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'welcome_screen.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? _displayName;
+  int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadDisplayName();
-  }
+  final List<Widget> _screens = [
+    _MyPlantsScreen(),
+    _WateringPlanScreen(),
+    _SettingsScreen(),
+  ];
 
-  Future<void> _loadDisplayName() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userName = prefs.getString('userName');
-    final firebaseName = FirebaseAuth.instance.currentUser?.displayName;
-
+  void _onItemTapped(int index) {
     setState(() {
-      _displayName = userName ?? firebaseName ?? 'Plant Lover';
+      _selectedIndex = index;
     });
   }
 
-  void _signOut(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // clear local storage
-    await FirebaseAuth.instance.signOut(); // sign out from Firebase
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => WelcomeScreen()),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        selectedItemColor: const Color(0xFF2A2A26),
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_florist),
+            label: 'My Plants',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Watering Plan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
+  }
+}
+
+// ========== Individual Screen Widgets ==========
+
+class _MyPlantsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Plants'),
+        backgroundColor: const Color(0xFF2A2A26),
+      ),
+      body: const Center(
+        child: Text('No plants added yet.'),
+      ),
+    );
+  }
+}
+
+class _WateringPlanScreen extends StatelessWidget {
+  String _currentMonth() {
+    final now = DateTime.now();
+    return "${now.month.toString().padLeft(2, '0')}/${now.year}";
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, ${_displayName ?? '...'}'),
-        backgroundColor: Colors.green[700],
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () => _signOut(context),
+        title: Text('Watering Plan – ${_currentMonth()}'),
+        backgroundColor: const Color(0xFF2A2A26),
+      ),
+      body: const Center(
+        child: Text('No scheduled tasks for this month.'),
+      ),
+    );
+  }
+}
+
+class _SettingsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        backgroundColor: const Color(0xFF2A2A26),
+      ),
+      body: ListView(
+        children: const [
+          ListTile(
+            leading: Icon(Icons.person),
+            title: Text('Profile'),
+            trailing: Icon(Icons.arrow_forward_ios),
+          ),
+          ListTile(
+            leading: Icon(Icons.notifications),
+            title: Text('Notifications'),
+            trailing: Icon(Icons.arrow_forward_ios),
+          ),
+          ListTile(
+            leading: Icon(Icons.logout),
+            title: Text('Log Out'),
+            trailing: Icon(Icons.arrow_forward_ios),
           ),
         ],
-      ),
-      body: Center(
-        child: Text(
-          'Your plants are in good hands! 🌱',
-          style: TextStyle(fontSize: 18),
-        ),
       ),
     );
   }
