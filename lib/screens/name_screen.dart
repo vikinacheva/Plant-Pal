@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
 
 class NameScreen extends StatefulWidget {
@@ -51,11 +52,9 @@ class _NameScreenState extends State<NameScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(horizontal: 0),
                     padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2A2A26), 
+                      color: const Color(0xFF2A2A26),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Center(
@@ -75,7 +74,7 @@ class _NameScreenState extends State<NameScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF2A2A26), 
+                      color: const Color(0xFF2A2A26),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -110,8 +109,10 @@ class _NameScreenState extends State<NameScreen> {
                       width: 140,
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setString('userName', _controller.text.trim());
                             widget.onNext(_controller.text.trim());
                           }
                         },

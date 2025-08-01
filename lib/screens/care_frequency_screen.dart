@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CareFrequencyScreen extends StatefulWidget {
   final void Function(int) onNext;
@@ -25,9 +26,7 @@ class _CareFrequencyScreenState extends State<CareFrequencyScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Welcome label
                   Container(
-                    width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2A2A26),
@@ -44,8 +43,6 @@ class _CareFrequencyScreenState extends State<CareFrequencyScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-
-                  // Question text
                   Text(
                     'How often do you water your plants per month?',
                     textAlign: TextAlign.center,
@@ -56,8 +53,6 @@ class _CareFrequencyScreenState extends State<CareFrequencyScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-
-                  // Frequency text
                   Text(
                     '${_slider.round()} times/month',
                     textAlign: TextAlign.center,
@@ -76,14 +71,16 @@ class _CareFrequencyScreenState extends State<CareFrequencyScreen> {
                     onChanged: (v) => setState(() => _slider = v),
                   ),
                   const SizedBox(height: 40),
-
-                  // Finish button
                   Center(
                     child: SizedBox(
                       width: 140,
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setInt('careFrequency', _slider.round());
+                          await prefs.setBool('onboardingComplete', true);
+
                           Navigator.pushReplacementNamed(context, '/home');
                         },
                         style: ElevatedButton.styleFrom(

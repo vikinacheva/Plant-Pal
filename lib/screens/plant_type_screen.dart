@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PlantTypeScreen extends StatefulWidget {
   final void Function(String plantType) onNext;
@@ -26,9 +27,7 @@ class _PlantTypeScreenState extends State<PlantTypeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Welcome label
                   Container(
-                    width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2A2A26),
@@ -45,8 +44,6 @@ class _PlantTypeScreenState extends State<PlantTypeScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-
-                  // Question
                   Text(
                     'What kind of plants do you have?',
                     textAlign: TextAlign.center,
@@ -57,8 +54,6 @@ class _PlantTypeScreenState extends State<PlantTypeScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Plant type options
                   Wrap(
                     spacing: 12,
                     runSpacing: 12,
@@ -77,10 +72,7 @@ class _PlantTypeScreenState extends State<PlantTypeScreen> {
                       );
                     }).toList(),
                   ),
-
                   const SizedBox(height: 40),
-
-                  // Next button
                   Center(
                     child: SizedBox(
                       width: 140,
@@ -88,7 +80,11 @@ class _PlantTypeScreenState extends State<PlantTypeScreen> {
                       child: ElevatedButton(
                         onPressed: _selectedType == null
                             ? null
-                            : () => widget.onNext(_selectedType!),
+                            : () async {
+                                final prefs = await SharedPreferences.getInstance();
+                                await prefs.setString('plantType', _selectedType!);
+                                widget.onNext(_selectedType!);
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2A2A26),
                           elevation: 8,
